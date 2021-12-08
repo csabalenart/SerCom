@@ -9,10 +9,9 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
-/datacollector/build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
 *config.json
-/datacollector/dist
+/dist
