@@ -8,21 +8,34 @@ package hu.irt.scom;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiBcmPin;
+import com.pi4j.io.gpio.RaspiPin;
+import java.awt.Color;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JOptionPane;
+import javax.swing.JTextPane;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 /**
  *
  * @author Csaba Lénárt
  */
 public class MainForm extends javax.swing.JFrame implements SerialPortDataListener{
-    private final LogWin log=new LogWin(this,false);
     public final AtomicBoolean connected=new AtomicBoolean(false);
     private final CustomByte cf = new CustomByte(this);
     /**
@@ -47,10 +60,16 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        conScroll = new javax.swing.JScrollPane();
+        console = new javax.swing.JTextArea();
+        command = new javax.swing.JTextField();
+        sendButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         connectButton = new javax.swing.JButton();
         disconnectButton = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         send26 = new javax.swing.JButton();
         sendcustom = new javax.swing.JButton();
@@ -60,11 +79,36 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
         extracrlf = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
-        conScroll = new javax.swing.JScrollPane();
-        console = new javax.swing.JTextArea();
-        command = new javax.swing.JTextField();
-        sendButton = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        pinmode = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        gpio = new javax.swing.JComboBox<>();
+        jPanel7 = new javax.swing.JPanel();
+        piButton = new javax.swing.JButton();
+        startStatus = new javax.swing.JCheckBox();
+        endStatus = new javax.swing.JCheckBox();
+        jPanel8 = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
+        adddelay = new javax.swing.JButton();
+        delay = new javax.swing.JSpinner();
+        highbutton = new javax.swing.JButton();
+        lowbutton = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        script = new java.awt.List();
+        jPanel10 = new javax.swing.JPanel();
+        logScroll = new javax.swing.JScrollPane();
+        logWin = new JTextPane() {
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                return getUI().getPreferredSize(this).width
+                <= getParent().getSize().width;
+            }
+
+        };
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("IRT SerCom");
@@ -76,6 +120,48 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
                 formWindowClosing(evt);
             }
         });
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Console"));
+
+        console.setEditable(false);
+        console.setColumns(20);
+        console.setFont(new java.awt.Font("Courier New", 0, 14)); // NOI18N
+        console.setRows(5);
+        conScroll.setViewportView(console);
+
+        command.setText("AT");
+        command.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                commandActionPerformed(evt);
+            }
+        });
+
+        sendButton.setText("send");
+        sendButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(conScroll)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(command)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(sendButton))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(conScroll)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(command, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendButton)))
+        );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Main operations"));
 
@@ -90,13 +176,6 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
         disconnectButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 disconnectButtonActionPerformed(evt);
-            }
-        });
-
-        jButton2.setText("Log");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
             }
         });
 
@@ -129,20 +208,17 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
                 .addComponent(connectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(disconnectButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 192, Short.MAX_VALUE)
                 .addComponent(sendcustom)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(send26)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2))
+                .addComponent(jButton1))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
+            .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
             .addComponent(disconnectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(send26, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(sendcustom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -173,12 +249,12 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(comList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(baudrate, 0, 183, Short.MAX_VALUE)
+            .addComponent(baudrate, 0, 195, Short.MAX_VALUE)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(extracrlf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -190,70 +266,258 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(baudrate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 168, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 157, Short.MAX_VALUE)
                 .addComponent(extracrlf))
         );
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Console"));
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
-        console.setEditable(false);
-        console.setColumns(20);
-        console.setFont(new java.awt.Font("Courier New", 0, 14)); // NOI18N
-        console.setRows(5);
-        conScroll.setViewportView(console);
+        jTabbedPane1.addTab("Com port actions", jPanel4);
 
-        command.setText("AT");
-        command.addActionListener(new java.awt.event.ActionListener() {
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Pin setup"));
+
+        jLabel3.setText("Pin mode:");
+
+        pinmode.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "WiringPI", "Broadcom" }));
+
+        jLabel5.setText("GPIO");
+
+        gpio.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pinmode, 0, 187, Short.MAX_VALUE)
+                    .addComponent(gpio, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(pinmode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(gpio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Led Villogtató Script"));
+
+        piButton.setText("Script lejátszása");
+        piButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandActionPerformed(evt);
+                piButtonActionPerformed(evt);
             }
         });
 
-        sendButton.setText("send");
-        sendButton.addActionListener(new java.awt.event.ActionListener() {
+        startStatus.setText("HIGH Kezdeti státusz (ha bepipálod highon kezd különben lowon)");
+
+        endStatus.setText("HIGH shutdown státusz (ha bepipálod highon hagyja a végén különben lowon)");
+
+        jPanel9.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Action hozzáadása"));
+
+        adddelay.setText("Add Delay");
+        adddelay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendButtonActionPerformed(evt);
+                adddelayActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(conScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(command)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sendButton))
+        delay.setModel(new javax.swing.SpinnerNumberModel(1000, 1, null, 1));
+
+        highbutton.setText("SET HIGH");
+        highbutton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                highbuttonActionPerformed(evt);
+            }
+        });
+
+        lowbutton.setText("SET LOW");
+        lowbutton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lowbuttonActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Remove Selected");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jButton4.setText("Remove all");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addComponent(delay, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(adddelay)
+                .addGap(33, 33, 33))
+            .addComponent(highbutton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lowbutton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton3)
+                    .addComponent(jButton4))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(conScroll)
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(delay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(adddelay))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(command, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sendButton)))
+                .addComponent(highbutton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lowbutton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton4)
+                .addContainerGap(97, Short.MAX_VALUE))
         );
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addComponent(script, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(script, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(startStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(endStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(piButton)
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                .addComponent(startStatus)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(endStatus)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(piButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Raspberry GPIO actions", jPanel5);
+
+        logWin.setEditable(false);
+        logWin.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        logWin.setText("************************************************\n***       Welcome to IRT SerCom Console      ***\n************************************************");
+        logScroll.setViewportView(logWin);
+
+        jButton5.setText("Clear");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(logScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 739, Short.MAX_VALUE)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(logScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton5))
+        );
+
+        jTabbedPane1.addTab("LOG", jPanel10);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jTabbedPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jTabbedPane1)
         );
 
         pack();
@@ -281,10 +545,6 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
 	return port;
     }
     
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        log.setVisible(!log.isVisible());
-    }//GEN-LAST:event_jButton2ActionPerformed
-
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
         try {
 	    comPort = getSelectedComPort();
@@ -301,7 +561,7 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
     private void disconnectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectButtonActionPerformed
         setConnected(false);
         if(this.comPort!=null) {
-            log.logInfo("Disconnected: "+comPort.closePort());
+            logInfo("Disconnected: "+comPort.closePort());
             
         }
         
@@ -327,9 +587,9 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
                 PrintWriter pw = new PrintWriter(comPort.getOutputStream());
                 pw.println(toSend);
                 pw.flush();
-                log.logInfo("Command "+toSend+" sent");
+                logInfo("Command "+toSend+" sent");
             } catch (Exception ex) {
-                log.logException("Error sending command", ex);
+                logException("Error sending command", ex);
             }
         }
     }//GEN-LAST:event_sendButtonActionPerformed
@@ -348,15 +608,11 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
                 PrintWriter pw = new PrintWriter(comPort.getOutputStream());
                 pw.println(toSend);
                 pw.flush();
-                log.logInfo("Custom byte stream sent: "+getByteForm(toSend));
+                logInfo("Custom byte stream sent: "+getByteForm(toSend));
             } catch (Exception ex) {
-                log.logException("Error sending #26", ex);
+                logException("Error sending #26", ex);
             }
         }
-    }
-    
-    public void logError(String err){
-        this.log.logError(err);
     }
     
     private String getByteForm(String what){
@@ -376,12 +632,92 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
         this.cf.setVisible(true);
     }//GEN-LAST:event_sendcustomActionPerformed
 
+    private void addScriptItem(String item){
+        script.add(item);
+    }
+    
+    private void piButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_piButtonActionPerformed
+        try{
+            int pinno=Integer.parseInt(this.gpio.getSelectedItem().toString());
+            final GpioController gpio = GpioFactory.getInstance();//com.pi4j.io.gpio.RaspiBcmPin.allPins(PinMode.);
+            Pin targetpin=null;
+            if("WiringPI".equals(this.pinmode.getSelectedItem().toString())){
+                targetpin=RaspiPin.getPinByAddress(pinno);
+            }else{
+                targetpin=RaspiBcmPin.getPinByAddress(pinno);
+            }
+            final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(targetpin, "MyLED", this.startStatus.isSelected()?PinState.HIGH:PinState.LOW);
+            pin.setShutdownOptions(true, this.endStatus.isSelected()?PinState.HIGH:PinState.LOW);
+            
+            for(int i=0;i<script.getItemCount();i++){
+                doScriptCommand(script.getItem(i),pin);
+            }
+            
+            gpio.shutdown();
+            gpio.unprovisionPin(pin);
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null, "ERROR: Check log for details");
+            logException("Error in GPIO", ex);
+        }
+    }//GEN-LAST:event_piButtonActionPerformed
+
+    private void doScriptCommand(String command, final GpioPinDigitalOutput pin) throws InterruptedException{
+        Objects.requireNonNull(command, "Command is null");
+        Objects.requireNonNull(pin, "PIN is null");
+        String cmd=command.toUpperCase();
+        if(cmd.startsWith("HIGH")){
+            pin.high();
+            logInfo("Set HIGH: "+pin.getName());
+        }
+        if(cmd.startsWith("LOW")){
+            pin.low();
+            logInfo("Set LOW: "+pin.getName());
+        }
+        if(cmd.startsWith("DELAY_")){
+            String dlay=cmd.substring(6);
+            logInfo("Delay("+dlay+")");
+            Thread.sleep(Long.parseLong(dlay));
+        }
+    }
+    
+    private void adddelayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adddelayActionPerformed
+        this.addScriptItem("DELAY_"+delay.getValue());
+    }//GEN-LAST:event_adddelayActionPerformed
+
+    private void highbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_highbuttonActionPerformed
+        this.addScriptItem("HIGH");
+    }//GEN-LAST:event_highbuttonActionPerformed
+
+    private void lowbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowbuttonActionPerformed
+        this.addScriptItem("LOW");
+    }//GEN-LAST:event_lowbuttonActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        script.removeAll();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        int index=script.getSelectedIndex();
+        if(index>=0){
+            script.remove(index);
+            if(script.getItemCount()>index){
+                script.select(index);
+            }else if(script.getItemCount()>0){
+                script.select(script.getItemCount()-1);
+            }
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        logWin.setText("");
+    }//GEN-LAST:event_jButton5ActionPerformed
+
     public final void setConnected(boolean conn){
         if(conn==false){
             System.err.println("Called with FALSE");
             cf.setVisible(false);
         } else {
-            log.logInfo("Connected to com port");
+            logInfo("Connected to com port");
         }
         this.sendcustom.setEnabled(conn);
         this.connectButton.setEnabled(!conn);
@@ -404,8 +740,109 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
             Collections.sort(ports);
             comList.setModel(new javax.swing.DefaultComboBoxModel<>(ports.toArray(new String[0])));
         }catch(Exception ex){
-            log.logError("Error getting comport list: "+ ex.getMessage());
+            logError("Error getting comport list: "+ ex.getMessage());
         }
+    }
+    
+    public void logError(String text){
+	StyledDocument doc = logWin.getStyledDocument();
+	SimpleAttributeSet red = new SimpleAttributeSet();
+	SimpleAttributeSet normal = new SimpleAttributeSet();
+	SimpleAttributeSet light = new SimpleAttributeSet();
+	StyleConstants.setForeground(red, Color.RED);
+	StyleConstants.setForeground(normal, Color.black);
+	StyleConstants.setForeground(light, Color.GRAY);
+	try
+	{
+	    doc.insertString(doc.getLength(), "\n[ERROR]", red );
+	    doc.insertString(doc.getLength(), getTimestamp(), light );
+	    doc.insertString(doc.getLength(), text==null?"":text, normal );
+	}
+	    catch(Exception e) { System.out.println(e); 
+	}
+    }
+    public void logDebug(String text){
+	StyledDocument doc = logWin.getStyledDocument();
+	SimpleAttributeSet red = new SimpleAttributeSet();
+	SimpleAttributeSet normal = new SimpleAttributeSet();
+	SimpleAttributeSet light = new SimpleAttributeSet();
+	StyleConstants.setForeground(red, new Color(0,100,0));
+	StyleConstants.setForeground(normal, Color.black);
+	StyleConstants.setForeground(light, Color.GRAY);
+	try
+	{
+	    doc.insertString(doc.getLength(), "\n[DEBUG]", red );
+	    doc.insertString(doc.getLength(), getTimestamp(), light );
+	    doc.insertString(doc.getLength(), text==null?"":text, normal );
+	}
+	    catch(Exception e) { System.out.println(e); 
+	}
+	
+    }
+    public void logWarning(String text){
+	StyledDocument doc = logWin.getStyledDocument();
+	SimpleAttributeSet red = new SimpleAttributeSet();
+	SimpleAttributeSet normal = new SimpleAttributeSet();
+	SimpleAttributeSet light = new SimpleAttributeSet();
+	StyleConstants.setForeground(red, Color.orange);
+	StyleConstants.setForeground(normal, Color.black);
+	StyleConstants.setForeground(light, Color.GRAY);
+	try
+	{
+	    doc.insertString(doc.getLength(), "\n[WARN ]", red );
+	    doc.insertString(doc.getLength(), getTimestamp(), light );
+	    doc.insertString(doc.getLength(), text==null?"":text, normal );
+	}
+	    catch(Exception e) { System.out.println(e); 
+	}
+    }
+    public void logInfo(String text){
+	StyledDocument doc = logWin.getStyledDocument();
+	SimpleAttributeSet red = new SimpleAttributeSet();
+	SimpleAttributeSet normal = new SimpleAttributeSet();
+	SimpleAttributeSet light = new SimpleAttributeSet();
+	StyleConstants.setForeground(red, Color.BLUE);
+	StyleConstants.setForeground(normal, Color.black);
+	StyleConstants.setForeground(light, Color.GRAY);
+	try
+	{
+	    doc.insertString(doc.getLength(), "\n[INFO ]", red );
+	    doc.insertString(doc.getLength(), getTimestamp(), light );
+	    doc.insertString(doc.getLength(), text==null?"":text, normal );
+	}
+	    catch(Exception e) { System.out.println(e); 
+	}
+    }
+    
+    public void logException(String message,Exception ex){
+	StyledDocument doc = logWin.getStyledDocument();
+	SimpleAttributeSet red = new SimpleAttributeSet();
+	SimpleAttributeSet normal = new SimpleAttributeSet();
+	SimpleAttributeSet light = new SimpleAttributeSet();
+	SimpleAttributeSet gray = new SimpleAttributeSet();
+	StyleConstants.setForeground(red, Color.RED);
+	StyleConstants.setForeground(normal, Color.black);
+	StyleConstants.setForeground(light, Color.GRAY);
+	StyleConstants.setForeground(gray, new Color(150,0,0));
+	try
+	{
+	    doc.insertString(doc.getLength(), "\n[ERROR]", red );
+	    doc.insertString(doc.getLength(), getTimestamp(), light );
+	    doc.insertString(doc.getLength(), message==null?"":message, normal );
+	    if(ex!=null){
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		ex.printStackTrace(pw);
+		String sStackTrace = sw.toString();
+		doc.insertString(doc.getLength(), "\n"+sStackTrace, gray);
+	    }
+	}
+	    catch(Exception e) { System.out.println(e); 
+	}
+    }
+    
+    public String getTimestamp(){
+	return "["+new Timestamp(System.currentTimeMillis()).toString()+"] ";
     }
     
     /**
@@ -421,24 +858,48 @@ public class MainForm extends javax.swing.JFrame implements SerialPortDataListen
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton adddelay;
     private javax.swing.JComboBox<String> baudrate;
     private javax.swing.JComboBox<String> comList;
     private javax.swing.JTextField command;
     private javax.swing.JScrollPane conScroll;
     private javax.swing.JButton connectButton;
     private javax.swing.JTextArea console;
+    private javax.swing.JSpinner delay;
     private javax.swing.JButton disconnectButton;
+    private javax.swing.JCheckBox endStatus;
     private javax.swing.JCheckBox extracrlf;
+    private javax.swing.JComboBox<String> gpio;
+    private javax.swing.JButton highbutton;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JScrollPane logScroll;
+    private javax.swing.JTextPane logWin;
+    private javax.swing.JButton lowbutton;
+    private javax.swing.JButton piButton;
+    private javax.swing.JComboBox<String> pinmode;
+    private java.awt.List script;
     private javax.swing.JButton send26;
     private javax.swing.JButton sendButton;
     private javax.swing.JButton sendcustom;
+    private javax.swing.JCheckBox startStatus;
     // End of variables declaration//GEN-END:variables
 
     @Override
